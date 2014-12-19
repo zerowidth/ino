@@ -37,7 +37,7 @@ class Init(Command):
                 description = ''
             template_items.append((os.path.basename(tdir), description))
 
-        parser.epilog += format_available_options(template_items, head_width=12, 
+        parser.epilog += format_available_options(template_items,
                                                   default=self.default_template)
 
     def run(self, args):
