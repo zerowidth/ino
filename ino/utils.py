@@ -54,8 +54,12 @@ def format_available_options(items, head_color='cyan',
     from ino.filters import colorize
     head_width = max([len(key) for key, val in items])
     default_mark = colorize(default_mark + ' ', default_mark_color)
-    lines = ['%s: %s%s' % (colorize('%%%ds' % head_width % key, head_color),
-                           default_mark if key == default else '',
-                           val)
-             for key, val in items]
+    lines = []
+    for key, val in items:
+        if len(key) > 0:
+            lines.append('%s: %s%s' % (colorize('%%%ds' % head_width % key, head_color),
+                               default_mark if key == default else '',
+                               val))
+        else:
+            lines.append('%s    %s' % (('%%%ds' % head_width % ''), val))
     return '\n'.join(lines)

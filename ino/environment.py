@@ -349,4 +349,13 @@ class Environment(dict):
 class BoardModels(OrderedDict):
     def format(self):
         map = [(key, val['name']) for key, val in self.iteritems() if 'name' in val]
+        map = []
+        for key, val in self.iteritems():
+            if not 'name' in val:
+                continue
+            name = val['name']
+            map.append([key, val['name']])
+            if 'menu' in val and 'cpu' in val['menu']:
+                for cpu, cpu_data in val['menu']['cpu'].iteritems():
+                    map.append(['', '%s: %s' % (cpu, cpu_data['_'])])
         return format_available_options(map, default=self.default)
