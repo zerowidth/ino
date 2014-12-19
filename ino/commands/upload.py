@@ -33,6 +33,7 @@ class Upload(Command):
                             help='Serial port to upload firmware to\nTry to guess if not specified')
 
         self.e.add_board_model_arg(parser)
+        self.e.add_board_cpu_arg(parser)
         self.e.add_arduino_dist_arg(parser)
 
     def discover(self):
@@ -46,11 +47,11 @@ class Upload(Command):
         else:
             self.e.find_arduino_tool('avrdude', ['hardware', 'tools', 'avr', 'bin'])
             self.e.find_arduino_file('avrdude.conf', ['hardware', 'tools', 'avr', 'etc'])
-    
+
     def run(self, args):
         self.discover()
         port = args.serial_port or self.e.guess_serial_port()
-        board = self.e.board_model(args.board_model)
+        board = self.e.board_model(args.board_model, args.board_cpu)
 
         protocol = board['upload']['protocol']
         if protocol == 'stk500':

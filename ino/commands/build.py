@@ -54,6 +54,7 @@ class Build(Command):
     def setup_arg_parser(self, parser):
         super(Build, self).setup_arg_parser(parser)
         self.e.add_board_model_arg(parser)
+        self.e.add_board_cpu_arg(parser)
         self.e.add_arduino_dist_arg(parser)
 
         parser.add_argument('--make', metavar='MAKE',
@@ -118,7 +119,7 @@ class Build(Command):
                             help='Verbose make output')
 
     def discover(self, args):
-        board = self.e.board_model(args.board_model)
+        board = self.e.board_model(args.board_model, args.board_cpu)
 
         core_place = os.path.join(board['_coredir'], 'cores', board['build']['core'])
         core_header = 'Arduino.h' if self.e.arduino_lib_version.major else 'WProgram.h'
@@ -152,7 +153,8 @@ class Build(Command):
                 items=[tool_binary], human_name=tool_binary)
 
     def setup_flags(self, args):
-        board = self.e.board_model(args.board_model)
+        board = self.e.board_model(args.board_model, args.board_cpu)
+
         mcu = '-mmcu=' + board['build']['mcu']
         # Hard-code the flags that are essential to building the sketch
         self.e['cppflags'] = SpaceList([

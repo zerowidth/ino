@@ -8,6 +8,7 @@ import pickle
 import platform
 import hashlib
 import re
+import copy
 
 try:
     from collections import OrderedDict
@@ -263,8 +264,24 @@ class Environment(dict):
 
         return self['board_models']
 
-    def board_model(self, key):
-        return self.board_models()[key]
+    def board_model(self, model, cpu):
+        board = copy.deepcopy(self.board_models()[model])
+
+        # Handle custom CPU data, if required
+        if board['menu'] and board['menu']['cpu']:
+            if cpu:
+                if cpu in board['menu']['cpu']:
+                    for key, extra in board['menu']['cpu'][cpu].items():
+                        if key in board:
+                            board[key].update(extra)
+                else:
+                    raise Abort("%s cpu invalid for %s board" % (cpu, model))
+            else:
+                raise Abort("--board-cpu required for the %s board" % model)
+        else:
+            if cpu:
+                raise Abort("%s CPU not applicable for the %s board" % (cpu, model))
+        return board
 
     def add_board_model_arg(self, parser):
         help = '\n'.join([
@@ -275,6 +292,16 @@ class Environment(dict):
 
         parser.add_argument('-m', '--board-model', metavar='MODEL',
                             default=self.default_board_model, help=help)
+
+    def add_board_cpu_arg(self, parser):
+        help = '\n'.join([
+            "Arduino board CPU, if required (default: none)",
+            "For a full list of boards and cpus, run:",
+            "`ino list-models`"
+        ])
+        parser.add_argument('-c', '--board-cpu', metavar='CPU',
+                            default=None, help=help)
+
 
     def add_arduino_dist_arg(self, parser):
         parser.add_argument('-d', '--arduino-dist', metavar='PATH',
