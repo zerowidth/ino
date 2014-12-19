@@ -98,7 +98,7 @@ class Environment(dict):
             try:
                 self.update(pickle.load(f))
             except:
-                print colorize('Environment dump exists (%s), but failed to load' % 
+                print colorize('Environment dump exists (%s), but failed to load' %
                                self.dump_filepath, 'yellow')
 
     @property
@@ -147,7 +147,7 @@ class Environment(dict):
         places = map(os.path.expanduser, places)
 
         glob_places = itertools.chain.from_iterable(glob(p) for p in places)
-        
+
         print 'Searching for', human_name, '...',
         results = []
         for p in glob_places:
@@ -218,7 +218,7 @@ class Environment(dict):
         # - hardware/arduino/{chipset}/boards.txt (Arduino 1.5.x, chipset like `avr`, `sam`)
         # - hardware/{platform}/boards.txt (MPIDE 0.xx, platform like `arduino`, `pic32`)
         # we should find and merge them all
-        boards_txts = self.find_arduino_file('boards.txt', ['hardware', '**'], 
+        boards_txts = self.find_arduino_file('boards.txt', ['hardware', '**'],
                                              human_name='Board description file (boards.txt)',
                                              multi=True)
 
@@ -265,19 +265,19 @@ class Environment(dict):
 
     def board_model(self, key):
         return self.board_models()[key]
-    
+
     def add_board_model_arg(self, parser):
         help = '\n'.join([
             "Arduino board model (default: %(default)s)",
-            "For a full list of supported models run:", 
+            "For a full list of supported models run:",
             "`ino list-models'"
         ])
 
-        parser.add_argument('-m', '--board-model', metavar='MODEL', 
+        parser.add_argument('-m', '--board-model', metavar='MODEL',
                             default=self.default_board_model, help=help)
 
     def add_arduino_dist_arg(self, parser):
-        parser.add_argument('-d', '--arduino-dist', metavar='PATH', 
+        parser.add_argument('-d', '--arduino-dist', metavar='PATH',
                             help='Path to Arduino distribution, e.g. ~/Downloads/arduino-0022.\nTry to guess if not specified')
 
     def serial_port_patterns(self):

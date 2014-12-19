@@ -122,8 +122,13 @@ class Build(Command):
 
         core_place = os.path.join(board['_coredir'], 'cores', board['build']['core'])
         core_header = 'Arduino.h' if self.e.arduino_lib_version.major else 'WProgram.h'
+        core_lib_path = os.path.join(board['_coredir'], 'libraries')
+
         self.e.find_dir('arduino_core_dir', [core_header], [core_place],
-                        human_name='Arduino core library')
+                        human_name='Arduino core')
+
+        self.e.find_dir('arduino_core_lib_dir', [], [core_lib_path],
+                        human_name='Arduino core libraries')
 
         if self.e.arduino_lib_version.major:
             variants_place = os.path.join(board['_coredir'], 'variants')
@@ -143,7 +148,7 @@ class Build(Command):
 
         for tool_key, tool_binary in toolset:
             self.e.find_arduino_tool(
-                tool_key, ['hardware', 'tools', 'avr', 'bin'], 
+                tool_key, ['hardware', 'tools', 'avr', 'bin'],
                 items=[tool_binary], human_name=tool_binary)
 
     def setup_flags(self, args):
@@ -155,7 +160,7 @@ class Build(Command):
             '-DF_CPU=' + board['build']['f_cpu'],
             '-DARDUINO=' + str(self.e.arduino_lib_version.as_int()),
             '-I' + self.e['arduino_core_dir'],
-        ]) 
+        ])
         # Add additional flags as specified
         self.e['cppflags'] += SpaceList(shlex.split(args.cppflags))
 
@@ -163,9 +168,9 @@ class Build(Command):
             self.e['cppflags'].append('-DUSB_VID=%s' % board['build']['vid'])
         if 'pid' in board['build']:
             self.e['cppflags'].append('-DUSB_PID=%s' % board['build']['pid'])
-            
+
         if self.e.arduino_lib_version.major:
-            variant_dir = os.path.join(self.e.arduino_variants_dir, 
+            variant_dir = os.path.join(self.e.arduino_variants_dir,
                                        board['build']['variant'])
             self.e.cppflags.append('-I' + variant_dir)
 
@@ -246,13 +251,16 @@ class Build(Command):
     def scan_dependencies(self):
         self.e['deps'] = SpaceList()
 
-        lib_dirs = [self.e.arduino_core_dir] + list_subdirs(self.e.lib_dir) + list_subdirs(self.e.arduino_libraries_dir)
+        lib_dirs = [self.e.arduino_core_dir] + \
+            list_subdirs(self.e.arduino_core_lib_dir) + \
+            list_subdirs(self.e.lib_dir) + \
+            list_subdirs(self.e.arduino_libraries_dir)
         inc_flags = self.recursive_inc_lib_flags(lib_dirs)
 
         # If lib A depends on lib B it have to appear before B in final
         # list so that linker could link all together correctly
         # but order of `_scan_dependencies` is not defined, so...
-        
+
         # 1. Get dependencies of sources in arbitrary order
         used_libs = list(self._scan_dependencies(self.e.src_dir, lib_dirs, inc_flags))
 
