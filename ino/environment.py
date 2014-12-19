@@ -268,7 +268,7 @@ class Environment(dict):
         board = copy.deepcopy(self.board_models()[model])
 
         # Handle custom CPU data, if required
-        if board['menu'] and board['menu']['cpu']:
+        if 'menu' in board and 'cpu' in board['menu']:
             if cpu:
                 if cpu in board['menu']['cpu']:
                     for key, extra in board['menu']['cpu'][cpu].items():
